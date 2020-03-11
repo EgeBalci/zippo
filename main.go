@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -19,11 +20,10 @@ import (
 func main() {
 
 	banner()
-	inputFile := flag.String("i", "", "Desired zip file name")
+	inputFile := flag.String("i", "", "Desired zip file")
 	fileName := flag.String("n", "", "Desired zip file name")
-	emptyFile := flag.Bool("empty", false, "Create a empty file")
-	tarMode := flag.Bool("tar", false, "Create a TAR file instead")
-	targzMode := flag.Bool("targz", false, "Create a TAR file instead")
+	emptyFile := flag.Bool("empty", false, "Create a empty archive")
+	archiveType := flag.String("t", "zip", "Archive type (zip/tar/gzip)")
 	outFileName := flag.String("o", "", "Output zip file")
 	flag.Parse()
 
@@ -37,34 +37,36 @@ func main() {
 		defer removeFile(*inputFile)
 	}
 	printStatus("Input File: " + *inputFile)
-	printStatus("Target File: " + *outFileName)
-	printStatus("File Name: " + *fileName)
+	printStatus("Out File: " + *outFileName)
+	printStatus("Given File Name: " + *fileName)
 	print("\n")
-	printStatus("Creating a new zippo...")
 
-	if *tarMode {
+	switch *archiveType {
+	case "zip":
+		zipWriter, err := zippo.NewZipFile(*outFileName)
+		fatal(err)
+		printStatus("Forging zip file...")
+		fatal(zippo.AddFileToZIP(zipWriter, *inputFile, *fileName))
+		zipWriter.Flush()
+		zipWriter.Close()
+	case "tar":
 		tarWriter, err := zippo.NewTARFile(*outFileName)
 		fatal(err)
-		printStatus("Adding files...")
+		printStatus("Forging tar file...")
 		fatal(zippo.AddFileToTAR(tarWriter, *inputFile, *fileName))
 		defer tarWriter.Flush()
 		defer tarWriter.Close()
-	} else if *targzMode {
+	case "gzip":
 		tarWriter, gzipWriter, err := zippo.NewTARGZFile(*outFileName)
 		fatal(err)
-		printStatus("Adding files...")
+		printStatus("Forging tar.gz file...")
 		fatal(zippo.AddFileToTAR(tarWriter, *inputFile, *fileName))
 		defer gzipWriter.Flush()
 		defer gzipWriter.Close()
 		defer tarWriter.Flush()
 		defer tarWriter.Close()
-	} else {
-		zipWriter, err := zippo.NewZipFile(*outFileName)
-		fatal(err)
-		printStatus("Adding files...")
-		fatal(zippo.AddFileToZIP(zipWriter, *inputFile, *fileName))
-		zipWriter.Flush()
-		zipWriter.Close()
+	default:
+		fatal(errors.New("unknown archive type"))
 	}
 
 	printSuccess("Done !")
@@ -114,7 +116,7 @@ func printSuccess(str string) {
 func banner() {
 	white := color.New(color.FgWhite).Add(color.Bold)
 	fmt.Println("") // Line feed
-	banner, _ := b64.StdEncoding.DecodeString("ICAgICAgICAgICAgICAgICwuflwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgLC1gICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgIF8uLS0tLS0tLS5cICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAob3wgbyBvIG8gfCBcICAgIC4tYCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgX198fG9fb19vX298X2FkLWBgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgIHxgYGBgYGBgYGBgYGBgYHwKICAgIHwgICAgIFpJUFBPICAgIHwgIAogICAgfCAgIOKZoCDimaAg4pmgIOKZoCDimaAgIHwgCiAgICB8ICAgICDimaAg4pmgIOKZoCAgICB8CiAgICB8ICAgICAgIOKZoCAgICAgIHwKICAgIHxfX19fX19fX19fX19fX3wKPT09PT09PT1FR0UtQkFMQ0k9PT09PT09PT0K")
+	banner, _ := b64.StdEncoding.DecodeString("ICAgICAgICAgICAgICAgICwuflwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgLC1gICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICBcICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgIF8uLS0tLS0tLS5cICAgICAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAob3wgbyBvIG8gfCBcICAgIC4tYCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgX198fG9fb19vX298X2FkLWBgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgIHxgYGBgYGBgYGBgYGBgYHwKICAgIHwgICAgIFpJUFBPICAgIHwgIAogICAgfCAgIOKZoCDimaAg4pmgIOKZoCDimaAgIHwgCiAgICB8ICAgICDimaAg4pmgIOKZoCAgICB8CiAgICB8ICAgICAgIOKZoCAgICAgIHwKICAgIHxfX19fX19fX19fX19fX3wKPT09PT09PT1AZWdlYmxjPT09PT09PT09PQo=")
 	white.Print(string(banner))
 	print("\n")
 }

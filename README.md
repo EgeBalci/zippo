@@ -1,5 +1,5 @@
 # Zippo
-Zippo is a archive payload generator for testing XSS, (Zip/Tar)slip vulnerabilities.
+Zippo is a archive payload generator for testing XSS, (Zip/Tar/Gzip)slip vulnerabilities.
 
 ```
                 ,.~\
@@ -17,16 +17,17 @@ Zippo is a archive payload generator for testing XSS, (Zip/Tar)slip vulnerabilit
     |     ♠ ♠ ♠    |
     |       ♠      |
     |______________|
-========EGE-BALCI=========
+========@egeblc==========
 
   -empty
-        Create a empty file
+        Create a empty archive
   -i string
-        Desired zip file name
+        Desired zip file
   -n string
         Desired zip file name
-  -r string
+  -o string
         Output zip file
-
+  -t string
+        Archive type (zip/tar/gzip) (default "zip")
 
 ```
