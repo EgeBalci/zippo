@@ -19,8 +19,6 @@ Zippo is a archive payload generator for testing XSS, (Zip/Tar/Gzip)slip vulnera
     |______________|
 ========@egeblc==========
 
-  -empty
-        Create a empty archive
   -i string
         Desired zip file
   -n string
@@ -30,4 +28,19 @@ Zippo is a archive payload generator for testing XSS, (Zip/Tar/Gzip)slip vulnera
   -t string
         Archive type (zip/tar/gzip) (default "zip")
 
+```
+
+## Build
+
+just `make` :)
+
+## Example Usage
+
+**TAR Archive With XSS Payload**
+```
+zippo -t tar -n "<svg onload=alert(1)>.txt" -o evil.tar
+```
+**ZIP Archive With ZIP-slip**
+```
+zippo -t zip -i my-shell.php -n "../../../my-shell.php" -o evil.zip
 ```

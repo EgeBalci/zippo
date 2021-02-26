@@ -9,7 +9,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	zippo "zippo/lib"
+	zippo "zippo/pkg"
 
 	b64 "encoding/base64"
 
@@ -20,11 +20,10 @@ import (
 func main() {
 
 	banner()
-	inputFile := flag.String("i", "", "Desired zip file")
-	fileName := flag.String("n", "", "Desired zip file name")
-	emptyFile := flag.Bool("empty", false, "Create a empty archive")
+	inputFile := flag.String("i", "", "File to be archived")
+	fileName := flag.String("n", "", "Archived file name")
 	archiveType := flag.String("t", "zip", "Archive type (zip/tar/gzip)")
-	outFileName := flag.String("o", "", "Output zip file")
+	outFileName := flag.String("o", "", "Output archive file name")
 	flag.Parse()
 
 	if len(os.Args) < 2 {
@@ -32,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *emptyFile {
+	if *inputFile == "" {
 		*inputFile = tempFile()
 		defer removeFile(*inputFile)
 	}

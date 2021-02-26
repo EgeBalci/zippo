@@ -1,2 +1,2 @@
 normal:
-	go build -ldflags="-s -w" -trimpath -o zippo
+	go build -ldflags="-s -w" -trimpath -trimpath -o zippo
