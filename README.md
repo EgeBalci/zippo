@@ -2,32 +2,31 @@
 Zippo is a archive payload generator for testing XSS, (Zip/Tar/Gzip)slip vulnerabilities.
 
 ```
-                ,.~\
-             ,-`    \
-             \       \
-              \       \
-               \       \
-                \       \
-       _.-------.\       \
-      (o| o o o | \    .-`
-     __||o_o_o_o|_ad-``
+                ,.~\                                                  
+             ,-`    \                                                 
+             \       \                                                
+              \       \                                               
+               \       \                                              
+                \       \                                             
+       _.-------.\       \                                            
+      (o| o o o | \    .-`                                            
+     __||o_o_o_o|_ad-``                                               
     |``````````````|
-    |     ZIPPO    |
-    |   ♠ ♠ ♠ ♠ ♠  |
+    |     ZIPPO    |  
+    |   ♠ ♠ ♠ ♠ ♠  | 
     |     ♠ ♠ ♠    |
     |       ♠      |
     |______________|
 ========@egeblc==========
 
   -i string
-        Desired zip file
+    	File to be archived
   -n string
-        Desired zip file name
+    	Archived file name
   -o string
-        Output zip file
+    	Output archive file name
   -t string
-        Archive type (zip/tar/gzip) (default "zip")
-
+    	Archive type (zip/tar/gzip) (default "zip")
 ```
 
 ## Build
